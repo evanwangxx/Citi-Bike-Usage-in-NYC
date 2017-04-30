@@ -1,0 +1,155 @@
+---
+title: "index2"
+output: html_document
+---
+```{r, echo = FALSE, warning = FALSE}
+## Membership Data
+#rm(list = ls())
+year <- c(2014, 2015, 2016)
+quan <- c("Q1", "Q2", "Q3", "Q4")
+names <- c("Date", 
+           "Past24_trip",
+           "Cumulative_trips_since_lunch",
+           "Miles_traveled_past24",
+           "Miles_to_date",
+           "Total_Annual_Members_Sold")
+
+Y2013Q4 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/membership/2013Q4.csv")
+for (i in year){
+  for(j in quan){
+    dataname <- paste(i, j, sep = "")
+    data_location <- paste("/Users/Hongbo/Desktop/DataVizProject/membership/", 
+                           dataname, 
+                           ".csv", sep = "")
+    temp_data_frame <- read.csv(data_location, stringsAsFactors = FALSE)[, c(1:6)]
+    temp_data_frame
+    colnames(temp_data_frame) <- names
+    temp_data_frame$Miles_to_date <- as.numeric(as.character(temp_data_frame$Miles_to_date))
+    temp_data_frame$Total_Annual_Members_Sold <- as.numeric(as.character(temp_data_frame$Total_Annual_Members_Sold))
+    assign( paste("Y", dataname, sep = ""), temp_data_frame)
+  }
+}
+
+Data2014 <- rbind(Y2014Q1, Y2014Q2, Y2014Q3, Y2014Q4)
+Data2015 <- rbind(Y2015Q1, Y2015Q2, Y2015Q3, Y2015Q4)
+Data2016 <- rbind(Y2016Q1, Y2016Q2, Y2016Q3, Y2016Q4)
+
+Date_read <- c(NA)
+j = 1
+for (i in Data2014$Date){
+  string_array <- strsplit(i, split = "/")
+  Date_read[j] <- paste(string_array[[1]][1], "/",
+                        string_array[[1]][2], "/", "2014",
+                        sep = "")
+  j <- j + 1
+}
+Data2014$Date <- Date_read
+
+Date_read <- c(NA)
+j = 1
+for (i in Data2016$Date){
+  string_array <- strsplit(i, split = "/")
+  Date_read[j] <- paste(string_array[[1]][1], "/",
+                     string_array[[1]][2], "/", "2016",
+                     sep = "")
+  j <- j + 1
+}
+Data2016$Date <- Date_read
+
+
+Data2014$Date <- as.Date(Data2014$Date, "%m/%d/%Y")
+Data2015$Date <- as.Date(Data2015$Date, "%m/%d/%Y")
+Data2016$Date <- as.Date(Data2016$Date, "%m/%d/%Y")
+Data_All <- rbind(Data2014, Data2015, Data2016)
+#Data_All$Miles_to_date <- as.numeric(Data_All$Miles_to_date)
+Data_All$Total_Annual_Members_Sold[627] <- mean(Data_All$Total_Annual_Members_Sold[-627])
+```
+
+### Expanding
+```{r, echo = FALSE, warning= FALSE, include = FALSE}
+library(plotly)
+expanding_num <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/expanding_num.csv", header = TRUE, sep = " ")
+
+Date_for <- c(NA)
+for (i in 1:nrow(Data_All)){
+  Date_for[i] <- paste(substr(Data_All$Date[i], 1, 4), substr(Data_All$Date[i], 6, 7), sep = "/")
+}
+Data_All$Date1 <- Date_for
+
+f1 <- list(
+  family = "Arial, sans-serif",
+  size = 18,
+  color = "lightgrey"
+)
+
+f2 <- list(
+  family = "Old Standard TT, serif",
+  size = 10,
+  color = "black"
+)
+
+a <- list(
+  title = "Total Bike Stations",
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickfont = f2,
+  exponentformat = "E",
+  side = 'left',
+  zeroline = FALSE
+)
+
+b <- list(
+  title = "Date",
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickangle = 30,
+  tickfont = f2,
+  exponentformat = "E",
+  ticks = "outside"
+)
+
+a2 <- list(
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickfont = f2,
+  exponentformat = "E",
+  side = 'right', 
+  overlaying = "y", 
+  title = 'Totol Membership', 
+  showgrid = FALSE, 
+  zeroline = FALSE
+)
+
+b2 <- list(
+  title = "Date",
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickangle = 60,
+  tickfont = f2,
+  exponentformat = "E"
+)
+```
+
+```{r, echo = FALSE, warning= FALSE}
+plot_ly() %>%
+  add_trace(data = expanding_num, y = ~Total.Station.Number, x = ~Date, type = 'bar', name = 'Station Amount',
+            marker = list(color = '#C9EFF9'),
+            hoverinfo = "text",
+            text = ~paste("Station Amount: ", Total.Station.Number)) %>%
+  add_trace(data = Data_All, x = ~Date1, y = ~Total_Annual_Members_Sold, type = 'scatter', mode = 'lines', name = 'Annual Membership', yaxis = 'y2',
+            line = list(color = '#45171D'),
+            hoverinfo = "text",
+            text = ~paste("Total Membership Sold: ", Total_Annual_Members_Sold)) %>%
+  layout(title = 'Citi Bike Station Amount and Total Membership Sold',
+         xaxis = b,
+         yaxis = a,
+         yaxis2 = a2)
+```
+
+As we expected, the amount of total number of membership increases as the total number of Citi bike station increases.
+
+
+### Citi Bike expanding from July 2013 to December 2016
+
+<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:1500px; height:1000px"></iframe>
+
