@@ -1,0 +1,466 @@
+---
+title: "Untitled"
+author: "hw2570 nd2506 "
+date: "4/30/2017"
+output: html_document
+---
+
+```{r, include = FALSE, echo = FALSE, warning = FALSE}
+## Map Style
+library(RJSONIO)
+library(tidyverse)
+
+style<-'[
+  {
+"elementType": "geometry",
+"stylers": [
+{
+  "color": "#212121"
+}
+]
+},
+{
+  "elementType": "labels",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+},
+  {
+  "elementType": "labels.icon",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+  },
+  {
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "elementType": "labels.text.stroke",
+  "stylers": [
+  {
+  "color": "#212121"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.country",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#9e9e9e"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.land_parcel",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.locality",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#bdbdbd"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.neighborhood",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+  },
+  {
+  "featureType": "poi",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "featureType": "poi.park",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#181818"
+  }
+  ]
+  },
+  {
+  "featureType": "poi.park",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#616161"
+  }
+  ]
+  },
+  {
+  "featureType": "poi.park",
+  "elementType": "labels.text.stroke",
+  "stylers": [
+  {
+  "color": "#1b1b1b"
+  }
+  ]
+  },
+  {
+  "featureType": "road",
+  "elementType": "geometry.fill",
+  "stylers": [
+  {
+  "color": "#2c2c2c"
+  }
+  ]
+  },
+  {
+  "featureType": "road",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#8a8a8a"
+  }
+  ]
+  },
+  {
+  "featureType": "road.arterial",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#373737"
+  }
+  ]
+  },
+  {
+  "featureType": "road.highway",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#3c3c3c"
+  }
+  ]
+  },
+  {
+  "featureType": "road.highway.controlled_access",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#4e4e4e"
+  }
+  ]
+  },
+  {
+  "featureType": "road.local",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#616161"
+  }
+  ]
+  },
+  {
+  "featureType": "transit",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "featureType": "water",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#000000"
+  }
+  ]
+  },
+  {
+  "featureType": "water",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#3d3d3d"
+  }
+  ]
+  }
+  ]'
+style_list<- fromJSON(style, asText = TRUE)
+
+create_style_string<- function(style_list){
+  style_string <- ""
+  for(i in 1:length(style_list)){
+    if("featureType" %in% names(style_list[[i]])){
+      style_string <- paste0(style_string, "feature:", 
+                             style_list[[i]]$featureType, "|")      
+    }
+    elements <- style_list[[i]]$stylers
+    style_string<-paste0(style_string,"element:",style_list[[i]]$elementType,"|")
+    a <- lapply(elements, function(x)paste0(names(x), ":", x)) %>%
+      unlist() %>%
+      paste0(collapse="|")
+    style_string <- paste0(style_string, a)
+    if(i < length(style_list)){
+      style_string <- paste0(style_string, "&style=")       
+    }
+  }  
+  # google wants 0xff0000 not #ff0000
+  style_string <- gsub("#", "0x", style_string)
+  return(style_string)
+}
+
+style_string<- create_style_string(style_list)
+
+```
+
+### Seasonal Analysis
+```{r, echo = FALSE, warning = FALSE}
+## Membership Data
+#rm(list = ls())
+year <- c(2014, 2015, 2016)
+quan <- c("Q1", "Q2", "Q3", "Q4")
+names <- c("Date", 
+           "Past24_trip",
+           "Cumulative_trips_since_lunch",
+           "Miles_traveled_past24",
+           "Miles_to_date",
+           "Total_Annual_Members_Sold")
+
+Y2013Q4 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/membership/2013Q4.csv")
+for (i in year){
+  for(j in quan){
+    dataname <- paste(i, j, sep = "")
+    data_location <- paste("/Users/Hongbo/Desktop/DataVizProject/membership/", 
+                           dataname, 
+                           ".csv", sep = "")
+    temp_data_frame <- read.csv(data_location, stringsAsFactors = FALSE)[, c(1:6)]
+    temp_data_frame
+    colnames(temp_data_frame) <- names
+    temp_data_frame$Miles_to_date <- as.numeric(as.character(temp_data_frame$Miles_to_date))
+    temp_data_frame$Total_Annual_Members_Sold <- as.numeric(as.character(temp_data_frame$Total_Annual_Members_Sold))
+    assign( paste("Y", dataname, sep = ""), temp_data_frame)
+  }
+}
+
+Data2014 <- rbind(Y2014Q1, Y2014Q2, Y2014Q3, Y2014Q4)
+Data2015 <- rbind(Y2015Q1, Y2015Q2, Y2015Q3, Y2015Q4)
+Data2016 <- rbind(Y2016Q1, Y2016Q2, Y2016Q3, Y2016Q4)
+
+Date_read <- c(NA)
+j = 1
+for (i in Data2014$Date){
+  string_array <- strsplit(i, split = "/")
+  Date_read[j] <- paste(string_array[[1]][1], "/",
+                        string_array[[1]][2], "/", "2014",
+                        sep = "")
+  j <- j + 1
+}
+Data2014$Date <- Date_read
+
+Date_read <- c(NA)
+j = 1
+for (i in Data2016$Date){
+  string_array <- strsplit(i, split = "/")
+  Date_read[j] <- paste(string_array[[1]][1], "/",
+                     string_array[[1]][2], "/", "2016",
+                     sep = "")
+  j <- j + 1
+}
+Data2016$Date <- Date_read
+
+
+Data2014$Date <- as.Date(Data2014$Date, "%m/%d/%Y")
+Data2015$Date <- as.Date(Data2015$Date, "%m/%d/%Y")
+Data2016$Date <- as.Date(Data2016$Date, "%m/%d/%Y")
+Data_All <- rbind(Data2014, Data2015, Data2016)
+#Data_All$Miles_to_date <- as.numeric(Data_All$Miles_to_date)
+Data_All$Total_Annual_Members_Sold[627] <- mean(Data_All$Total_Annual_Members_Sold[-627])
+
+library(ggplot2)
+library(ggthemes)
+
+ggplot(data = Data_All) + 
+  geom_line(mapping = aes(x = Date, y = Past24_trip), 
+            color = "red", alpha = 0.5) +
+  ggtitle("Citi Bike Miles Per Day") +
+  ylab("") + xlab("") +
+  scale_y_continuous(name = "Miles") +
+  annotate("text", x=as.Date("2014-12-31", "%Y-%m-%d"), y=2000, label= "Winter", size = 5) + 
+  annotate("text", x=as.Date("2016-2-11", "%Y-%m-%d"), y=7000, label= "Winter", size = 5) + 
+  annotate("text", x=as.Date("2014-8-01", "%Y-%m-%d"), y=43000, label= "Summer", size = 5) + 
+  annotate("text", x=as.Date("2015-8-01", "%Y-%m-%d"), y=55000, label= "Summer", size = 5) +
+  annotate("text", x=as.Date("2016-8-01", "%Y-%m-%d"), y=68000, label= "Summer", size = 5) +
+  theme_tufte(base_size = 15) + 
+  theme(text = element_text(color = "gray20"),
+        legend.position = c("top"), # position the legend in the upper left 
+        legend.direction = "horizontal",
+        legend.justification = 0.05, # anchor point for legend.position.
+        legend.text = element_text(size = 11, color = "gray10"),
+        legend.key.height=unit(1,"line"),
+        legend.key.width=unit(3,"line"),
+        axis.text.y  = element_text(face = "italic"),
+        axis.title.x = element_text(vjust = -1), # move title away from axis
+        axis.title.y = element_text(vjust = 1), # move away for axis
+        axis.ticks.y = element_blank(), # element_blank() is how we remove elements
+        axis.line = element_line(color = "gray40", size = 0.5),
+        #panel.grid.major = element_line(color = "gray50", size = 0.5),
+        panel.grid.major.x = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 40, l = 5, unit = "pt"),
+        plot.title = element_text(face = "bold", color = "black", size = 18)
+  )
+```
+
+Clearly, there are fewer Citi Bike rides during the cold winter months. 
+
+
+
+
+### Expanding
+```{r, echo = FALSE, warning= FALSE, include = FALSE}
+library(plotly)
+expanding_num <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/expanding_num.csv", header = TRUE, sep = " ")
+
+Date_for <- c(NA)
+for (i in 1:nrow(Data_All)){
+  Date_for[i] <- paste(substr(Data_All$Date[i], 1, 4), substr(Data_All$Date[i], 6, 7), sep = "/")
+}
+Data_All$Date1 <- Date_for
+
+f1 <- list(
+  family = "Arial, sans-serif",
+  size = 18,
+  color = "lightgrey"
+)
+
+f2 <- list(
+  family = "Old Standard TT, serif",
+  size = 10,
+  color = "black"
+)
+
+a <- list(
+  title = "Total Bike Stations",
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickfont = f2,
+  exponentformat = "E",
+  side = 'left',
+  zeroline = FALSE
+)
+
+b <- list(
+  title = "Date",
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickangle = 30,
+  tickfont = f2,
+  exponentformat = "E",
+  ticks = "outside"
+)
+
+a2 <- list(
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickfont = f2,
+  exponentformat = "E",
+  side = 'right', 
+  overlaying = "y", 
+  title = 'Totol Membership', 
+  showgrid = FALSE, 
+  zeroline = FALSE
+)
+
+b2 <- list(
+  title = "Date",
+  titlefont = f1,
+  showticklabels = TRUE,
+  tickangle = 60,
+  tickfont = f2,
+  exponentformat = "E"
+)
+```
+
+```{r, echo = FALSE, warning= FALSE}
+plot_ly() %>%
+  add_trace(data = expanding_num, y = ~Total.Station.Number, x = ~Date, type = 'bar', name = 'Station Amount',
+            marker = list(color = '#C9EFF9'),
+            hoverinfo = "text",
+            text = ~paste("Station Amount: ", Total.Station.Number)) %>%
+  add_trace(data = Data_All, x = ~Date1, y = ~Total_Annual_Members_Sold, type = 'scatter', mode = 'lines', name = 'Annual Membership', yaxis = 'y2',
+            line = list(color = '#45171D'),
+            hoverinfo = "text",
+            text = ~paste("Total Membership Sold: ", Total_Annual_Members_Sold)) %>%
+  layout(title = 'Citi Bike Station Amount and Total Membership Sold',
+         xaxis = b,
+         yaxis = a,
+         yaxis2 = a2)
+```
+
+As we expected, the amount of total number of membership increases as the total number of Citi bike station increases.
+
+
+### Network
+```{r, echo = FALSE, warning = FALSE, include=FALSE}
+library(ggplot2)
+library(ggmap)
+citi_stations_201608 <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/citi_stations_201608.csv", header = TRUE, sep = " ")
+B <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/Frequent_B.csv", header = TRUE, sep = " ")
+nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptype = "roadmap")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+ggmap(nyc_map) + 
+  geom_segment(data = B, 
+               mapping = aes(x = s_long, y = s_lat,
+                           xend = e_long, yend = e_lat,
+                           alpha = freq), 
+               color = "gold") +
+  geom_point(data = citi_stations_201608, mapping = aes(x = long, y = lat),
+             color = "red", size = 0.05, alpha = 0.4) + 
+  scale_alpha_continuous( range = c(0.008, 0.01) ) + 
+  guides(alpha = FALSE)
+```
+
+
+### Trips Distribution Over The 4 Quarters and Weekday
+
+<iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:440px; height:800px"></iframe>
+
+
+
+### Citi Bike Daily Useage
+
+<iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:880px; height:800px"></iframe>
+
+
+
+### Citi Bike expanding from July 2013 to December 2016
+
+<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:880px; height:800px"></iframe>
