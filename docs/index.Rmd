@@ -462,7 +462,7 @@ ggmap(nyc_map) +
 
 
 
-### Citi Bike Daily Useage
+### Citi Bike Daily Usage
 
 <iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:880px; height:900px"></iframe>
 
@@ -471,3 +471,46 @@ ggmap(nyc_map) +
 ### Citi Bike expanding from July 2013 to December 2016
 
 <iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:880px; height:800px"></iframe>
+
+### Tweets Analysis related to Citi Bike
+
+We searched Tweets via Twitter API as a sample to study the image of Citibike in social media. Due to the restriction of Twitter Search API we could only fetch tweets after two weeks ago. In total we got 461 tweets. The number shows that Citibike is not a hot topic on Twitter.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+load("Data/citi.RData")
+library(ggplot2)
+library(Matrix)
+library(wordcloud2)
+library(wordcloud)
+library(plotly)
+
+ggplot(td_freq, aes(term, n)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  ggtitle("Frequent Words for Citibike") + xlab(NULL) + ylab("Frequency") + 
+  coord_flip() + theme_classic()
+```
+
+This is the top frequent words in the cleaned Tweets content, after eliminating Citibike related words like "citibike", "bike", etc. The most frequent words during last two weeks are about Citibike's one-day-free-pass campaign on the Earth Day on April 22nd. In addition, #cargreenyc tag and Brooklyn are strongly related topic. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(1234)
+wordcloud2(data = FreqMat, minSize = 5, gridSize = 5, size = 0.5)
+```
+
+This is an interactive wordcloud of words usage in Citibike related tweets. Interesting words: mastercard, picnic, weather, celebr, healthier...
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplotly(plot_senti)
+```
+
+I used Liu's lexicon, which contains near 7000 words, for positive/negative words analysis. The interactive plot above demonstrates the result of sentiment analysis to Tweets related to Citibike. The average score in last two weeks remained slightly positive. While a lot of tweets don't have specific sentiment keywords.
+
+```{r, echo=FALSE, warning=F, message=F}
+set.seed(4321)
+comparison.cloud(v_corpus_m, max.words = 100, title.size = 1, colors = c("orange", "blue"))
+```
+
+The comparison cloud shows what negative tweets are talking about. It turns out that some of them are talking about health issues like "heart" and "cancer", which we supposed are actually positive to Citibike. But the cloud also has "risk", "work" as well as "broken", "steal" and "ruin", which need attention from Citibike management to see what happened/should be improved. 
+
+
+
