@@ -4,12 +4,16 @@ author: "Nishchal Dethe, Kai Huo, Hongbo Wang, Kangxin Bao "
 date: "4/30/2017"
 output: html_document
 navbar:
-  title: "My Website"
+  title: "Final Project Template"
   left:
     - text: "Home"
       href: index.html
-    - text: "About"
-      href: about.html
+    - text: "ggplot and plotly"
+      href: 1-ggplot.html
+    - text: "Crime Map"
+      href: 2-map.html
+    - text: "Shiny App"
+      href: 3-shiny.html
 ---
 
 ```{r, include = FALSE, echo = FALSE, warning = FALSE}
@@ -443,31 +447,31 @@ nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptyp
 ```
 
 ```{r, echo = FALSE, warning = FALSE}
-ggmap(nyc_map) + 
-  geom_segment(data = B, 
-               mapping = aes(x = s_long, y = s_lat,
-                           xend = e_long, yend = e_lat,
-                           alpha = freq), 
-               color = "gold") +
-  geom_point(data = citi_stations_201608, mapping = aes(x = long, y = lat),
-             color = "red", size = 0.05, alpha = 0.4) + 
-  scale_alpha_continuous( range = c(0.008, 0.01) ) + 
-  guides(alpha = FALSE)
+#ggmap(nyc_map) + 
+#  geom_segment(data = B, 
+#               mapping = aes(x = s_long, y = s_lat,
+#                           xend = e_long, yend = e_lat,
+#                           alpha = freq), 
+#               color = "gold") +
+#  geom_point(data = citi_stations_201608, mapping = aes(x = long, y = lat),
+#             color = "red", size = 0.05, alpha = 0.4) + 
+#  scale_alpha_continuous( range = c(0.008, 0.01) ) + 
+#  guides(alpha = FALSE)
 ```
 
 
 ### Trips Distribution Over The 4 Quarters and Weekday
 
-<iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:1000px; height:800px"></iframe>
+<iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:1500px; height:1000px"></iframe>
 
 
 
 ### Citi Bike Daily Useage
 
-<iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:880px; height:900px"></iframe>
+<iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:1500px; height:1000px"></iframe>
 
 
 
 ### Citi Bike expanding from July 2013 to December 2016
 
-<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:880px; height:800px"></iframe>
+<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:1500px; height:1000px"></iframe>
