@@ -458,13 +458,13 @@ ggmap(nyc_map) +
 
 ### Trips Distribution Over The 4 Quarters and Weekday
 
-<iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:440px; height:800px"></iframe>
+<iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:1000px; height:800px"></iframe>
 
 
 
 ### Citi Bike Daily Useage
 
-<iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:880px; height:800px"></iframe>
+<iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:880px; height:900px"></iframe>
 
 
 
