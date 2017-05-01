@@ -144,12 +144,32 @@ plot_ly() %>%
          xaxis = b,
          yaxis = a,
          yaxis2 = a2)
+
 ```
+
+```{r, echo = FALSE, warning=FALSE}
+library(DT)
+Daily_Membership_Sold <- c(NA)
+for (i in 2:nrow(Data_All)){
+  Daily_Membership_Sold[i] <- Data_All$Total_Annual_Members_Sold[i] - Data_All$Total_Annual_Members_Sold[i - 1]
+}
+
+Daily_Membership_Sold[1] <- 25
+
+membership <- data.frame(date = Data_All$Date, `daily usage number` = Data_All$Past24_trip,
+                         `daily usage miles` = Data_All$Miles_traveled_past24,
+                         `daily membership sold` = Daily_Membership_Sold,
+                         `total membership sold` = Data_All$Total_Annual_Members_Sold)
+
+datatable(membership)
+```
+
+
 
 As we expected, the amount of total number of membership increases as the total number of Citi bike station increases.
 
 
 ### Citi Bike expanding from July 2013 to December 2016
 
-<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:1500px; height:1000px"></iframe>
+<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:1000px; height:800px"></iframe>
 
