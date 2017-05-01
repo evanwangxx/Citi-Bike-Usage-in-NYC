@@ -1,7 +1,5 @@
 ---
 title: "Data"
-author: "hw2570"
-date: "5/1/2017"
 output: html_document
 ---
 
