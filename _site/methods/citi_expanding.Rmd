@@ -1,0 +1,92 @@
+---
+title: "Untitled"
+author: "hw2570"
+date: "4/8/2017"
+output: md_document
+---
+
+```{r, echo= FALSE, warning = FALSE, cache = FALSE}
+library(ggmap)
+
+nyc_map <- get_map("roosevelt island", zoom = 12, source = 'stamen', maptype = 'toner-background')
+
+citi201307 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/citi_data/201307.csv", header = TRUE)
+citi201407 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/citi_data/201407.csv", header = TRUE)
+citi201507 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/citi_data/201507.csv", header = TRUE)
+citi201607 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/citi_data/201607.csv", header = TRUE)
+
+# unique citi station
+long <- c(NA)
+lat <- unique(citi201307$start.station.latitude)
+for( i in 1:length(lat)){
+  index <- which(citi201307$start.station.latitude == lat[i])[1]
+  long[i] <- citi201307$start.station.longitude[index]
+}
+newS <- rep(FALSE, length(lat))
+citi201307_station <- data.frame(long, lat, newS)
+
+long <- c(NA)
+lat <- unique(citi201407$start.station.latitude)
+newS <- c(NA)
+for( i in 1:length(lat)){
+  index <- which(citi201407$start.station.latitude == lat[i])[1]
+  long[i] <- citi201407$start.station.longitude[index]
+  if (length(which(citi201307_station$long == long[i])) != 0){
+    newS[i] <- FALSE
+  } else{
+    newS[i] <- TRUE
+  }
+}
+citi201407_station <- data.frame(long, lat, newS)
+
+long <- c(NA)
+lat <- unique(citi201507$start.station.latitude)
+newS <- c(NA)
+for( i in 1:length(lat)){
+  index <- which(citi201507$start.station.latitude == lat[i])[1]
+  long[i] <- citi201507$start.station.longitude[index]
+  if (length(which(citi201407_station$long == long[i])) != 0){
+    newS[i] <- FALSE
+  } else{
+    newS[i] <- TRUE
+  }
+}
+citi201507_station <- data.frame(long, lat, newS)
+
+long <- c(NA)
+lat <- unique(citi201607$start.station.latitude)
+newS <- c(NA)
+for( i in 1:length(lat)){
+  index <- which(citi201607$start.station.latitude == lat[i])[1]
+  long[i] <- citi201607$start.station.longitude[index]
+  if (length(which(citi201507_station$long == long[i])) != 0){
+    newS[i] <- FALSE
+  } else{
+    newS[i] <- TRUE
+  }
+}
+citi201607_station <- data.frame(long, lat, newS)
+```
+
+
+```{r, echo= FALSE, warning = FALSE}
+ggmap(nyc_map) +
+  geom_point(data = citi201307_station, 
+             aes(x = long, y = lat, color = "citi2013"), size = 0.5, alpha = 1) +
+  geom_point(data = citi201407_station[citi201407_station$newS == TRUE, ], 
+             aes(x = long, y = lat, color = "citi2014"), size = 0.5, alpha = 1) +
+  geom_point(data = citi201507_station[citi201507_station$newS == TRUE, ], 
+             aes(x = long, y = lat, color = "citi2015"), size = 0.5, alpha = 1) +
+  geom_point(data = citi201607_station[citi201607_station$newS == TRUE, ], 
+             aes(x = long, y = lat, color = "citi2016"), size = 0.5, alpha = 1) +
+  scale_color_manual(values = c('blue', 'green', 'yellow', 'red')) + 
+  ggtitle("Citi Bike 2013 ~ 2016") + 
+  xlab("") + ylab("") + 
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+
+```
