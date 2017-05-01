@@ -8,3 +8,5 @@ navbar:
       href: index1.html
     - text: "Expanding"
       href: index2.html
+    - text: "Data"
+      href: index3.html  

@@ -1,0 +1,58 @@
+---
+title: "Data"
+author: "hw2570"
+date: "5/1/2017"
+output: html_document
+---
+
+Abstract
+We're going to conduct a case study on the citibike dataset. We'll be looking at NYC traffic data and try to predict/visualize how different factors affect daily bike requirements. Looking at population data, local attractions data to predict where new stations could be opened or how has citibike used this data to expand. In this project, using Twitter data, we’ll try to visualize how sentiments affect prices. We’ll look at which stations serve which neighbourhoods. We’ll look at the citibike customer base to find patterns within the demographics that citibike serves.
+
+Data
+We plan to apply the Citi Bike System Data, which is an open source database provided by [Citi Group](http://www.citigroup.com/citi/), containing Citi Bike trip histories, ridership and membership data and other additional relevant resources. 
+
+The trip histories data include following variables: 
+
++ Trip Duration (seconds)
++ Start Time and Date
++ Stop Time and Date
++ Start Station Name
++ End Station Name
++ Station ID
++ Station Lat/Long
++ Bike ID
++ User Type (Customer = 24-hour pass or 7-day pass user; Subscriber = Annual Member)
++ Gender (Zero=unknown; 1=male; 2=female)
++ Year of Birth
+
+The ridership and membership data include: 
+
++ Trips over the past 24-hours (midnight to 11:59pm)
++ Miles traveled today (midnight to 11:59 pm)
++ Total Annual Members (All Time)
++ 24-Hour Passes Purchased (midnight to 11:59 pm)
++ 3-Day Passes Purchased (midnight to 11:59 pm)
+
+The City of New York’s bicycling data include:
+
++ Locations of the City's outdoor bicycle racks
+
+In addition, we are using Twitter data to do text analysis about Citibike. We will stream tweets that mention Citibike in a certain period via Twitter API and apply frequency analysis, sentiment analysis and word clouds to describe the data, analyse user’s opinions towards Citibike and look for other interesting facts. 
+
+All the datasets of Citibike can be downloaded in csv files in a clean form. The potential obstacle in data processing may be the streaming and processing of tweets data since the tweets can be very messy with tags, abbreviations and unrelated information. And we want to get the geographic information of every tweet to get the location of that bike trip, which we are not sure if available. 
+
+The questions we want to ask of the data are just what we want to analyze mentioned in the abstract, since the data are all simply structured and contain most of the variables we need. 
+
+>Here are the linkages of the data: 
+
++ [Citi Bike Trip History](https://s3.amazonaws.com/tripdata/index.html)
+
++ [Citi Bike Daily Ridership and Membership Data](https://www.citibikenyc.com/system-data)
+
++ [Citi Bike Monthly Operating Report](https://www.citibikenyc.com/system-data/operating-reports)
+
++ [The City of New York's bicycling data](http://www.nyc.gov/html/dot/html/about/datafeeds.shtml#Bikes)
+>
+
+
+
