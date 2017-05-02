@@ -366,9 +366,10 @@ ggplot(usertype) +
   geom_area(mapping = aes(x = date, y = subscriber, fill = "subscriber"), alpha = 0.5) +
   geom_area(mapping = aes(x = date, y = customer, fill = "customer"), alpha = 1) + 
   scale_fill_manual(aesthetics = c("subscriber", "customer"),
-                     labels = c("subscriber", "customer"),
-                     values = c("red", "blue"),
-                    scale_name = "") + 
+                    name = c("User Type"),
+                    labels = c("subscriber", "customer"),
+                    values = c("red", "blue")) + 
+  ggtitle("Citi Bike User Type") +
   theme_tufte(base_size = 15) + 
   theme(text = element_text(color = "gray20"),
         legend.position = c("top"), # position the legend in the upper left 
