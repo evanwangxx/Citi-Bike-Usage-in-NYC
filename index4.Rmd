@@ -14,25 +14,25 @@ library(dplyr)
 library(leaflet)
 leaflet(after) %>% addTiles('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', 
                             group = "map") %>%
-  addCircleMarkers(group = "Q1", data = Q1, weight=0, radius=4, 
+  addCircleMarkers(group = "Q1", data = Q1, weight=0, radius=4, fillOpacity=0.8,
                    lng = ~station.long, lat = ~station.lat, 
                    color = ~colorNumeric("RdYlGn", `start.count`)(`start.count`), 
                    popup=~paste("Name: ",station.id,"<br>
                                 Start Count: ", start.count, "<br>
                                 End Count:", end.count)) %>%
-  addCircleMarkers(group = "Q2", data = Q2, weight=0, radius=4, 
+  addCircleMarkers(group = "Q2", data = Q2, weight=0, radius=4, fillOpacity=0.8,
                    lng = ~station.long, lat = ~station.lat, 
                    color = ~colorNumeric("RdYlGn", `start.count`)(`start.count`), 
                    popup=~paste("Name: ",station.id,"<br>
                                 Start Count: ", start.count, "<br>
                                 End Count:", end.count)) %>%
-  addCircleMarkers(group = "Q3", data = Q3, weight=0, radius=4, 
+  addCircleMarkers(group = "Q3", data = Q3, weight=0, radius=4, fillOpacity=0.8,
                    lng = ~station.long, lat = ~station.lat, 
                    color = ~colorNumeric("RdYlGn", `start.count`)(`start.count`), 
                    popup=~paste("Name: ",station.id,"<br>
                                 Start Count: ", start.count, "<br>
                                 End Count:", end.count)) %>%
-  addCircleMarkers(group = "Q4", data = Q4, weight=0, radius=4, 
+  addCircleMarkers(group = "Q4", data = Q4, weight=0, radius=4, fillOpacity=0.8,
                    lng = ~station.long, lat = ~station.lat, 
                    color = ~colorNumeric("RdYlGn", `start.count`)(`start.count`), 
                    popup=~paste("Name: ",station.id,"<br>
