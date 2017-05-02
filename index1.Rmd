@@ -356,11 +356,13 @@ Clearly, there are fewer Citi Bike rides during the cold winter months.
 
 
 
-```{r, echo = FALSE, warning = FALSE}
+```{r, echo = FALSE, warning = FALSE, include = FALSE, message = FALSE}
 library(ggmap)
 nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptype = "roadmap")
 B <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/Frequent_B.csv", header = TRUE, sep = " ")
+```
 
+```{r, echo = FALSE, warning = FALSE}
 ggmap(nyc_map) + 
   geom_segment(data = B[B$freq > 600, ], 
              mapping = aes(x = s_long, y = s_lat,
@@ -375,7 +377,8 @@ ggmap(nyc_map) +
         axis.ticks.x=element_blank(),
         axis.title.y=element_blank(),
         axis.text.y=element_blank(),
-        axis.ticks.y=element_blank()) 
+        axis.ticks.y=element_blank()) +
+  ggtitle("Most Poplular Paths")
   
   
 
