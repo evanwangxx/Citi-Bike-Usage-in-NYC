@@ -35,7 +35,11 @@ This is an interactive wordcloud of words usage in Citibike related tweets. Inte
 ### Sentiment Analysis
 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
+<<<<<<< HEAD
 plot_senti
+=======
+ggplotly(plot_senti)
+>>>>>>> origin/master
 ```
 
 We used Liu's lexicon, which contains near 7000 words, for positive/negative words analysis. The interactive plot above demonstrates the result of sentiment analysis to Tweets related to Citibike. The average score in last two weeks remained slightly positive. While a lot of tweets don't have specific sentiment keywords.
