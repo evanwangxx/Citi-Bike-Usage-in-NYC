@@ -6,11 +6,17 @@ navbar:
   left:
     - text: "Daily Usage"
       href: index1.html
-    - text: "expanding"
+    - text: "Expanding"
       href: index2.html
+    - text: "Usage v.s. Subway"
+      href: index4.html
+    - text: "Citibike on Social Media"
+      href: index5.html
+    - text: "Data"
+      href: index3.html      
 ---
 
-![Caption for the picture.](/Users/Hongbo/Desktop/Citi-Bike-Usage-in-NYC/plots/Citibike.jpg)
+![Caption for the picture.](plots/Citibike.jpg)
 
 
 ```{r, include = FALSE, echo = FALSE, warning = FALSE}
@@ -251,8 +257,8 @@ style_string<- create_style_string(style_list)
 ```{r, echo = FALSE, warning = FALSE, include=FALSE}
 library(ggplot2)
 library(ggmap)
-citi_stations_201608 <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/citi_stations_201608.csv", header = TRUE, sep = " ")
-B <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/Frequent_B.csv", header = TRUE, sep = " ")
+citi_stations_201608 <- read.csv("data/citi_stations_201608.csv", header = TRUE, sep = " ")
+B <- read.csv("data/Frequent_B.csv", header = TRUE, sep = " ")
 nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptype = "roadmap")
 ```
 
