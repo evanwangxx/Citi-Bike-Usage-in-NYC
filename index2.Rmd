@@ -70,7 +70,7 @@ Data_All <- rbind(Data2014, Data2015, Data2016)
 Data_All$Total_Annual_Members_Sold[627] <- mean(Data_All$Total_Annual_Members_Sold[-627])
 ```
 
-### Expanding
+##### Expanding
 ```{r, echo = FALSE, warning= FALSE, include = FALSE}
 library(plotly)
 expanding_num <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/expanding_num.csv", header = TRUE, sep = " ")
@@ -174,7 +174,7 @@ datatable(membership)
 As we expected, the amount of total number of membership increases as the total number of Citi bike station increases.
 
 
-### Citi Bike expanding from July 2013 to December 2016
+##### Citi Bike expanding from July 2013 to December 2016
 
 <iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:1000px; height:800px"></iframe>
 

@@ -369,7 +369,8 @@ ggplot(usertype) +
                     name = c("User Type"),
                     labels = c("subscriber", "customer"),
                     values = c("red", "blue")) + 
-  ggtitle("Citi Bike User Type") +
+  ggtitle("Citi Bike User Type") + 
+  ylab("") +
   theme_tufte(base_size = 15) + 
   theme(text = element_text(color = "gray20"),
         legend.position = c("top"), # position the legend in the upper left 
@@ -415,13 +416,13 @@ ggmap(nyc_map) +
   ggtitle("Most Poplular Paths")
 ```
 
-### Trips Distribution Over The 4 Quarters and Weekday
+##### Trips Distribution Over The 4 Quarters and Weekday
 
 <iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:1000px; height:800px"></iframe>
 
 
 
-### Citi Bike Daily Useage
+##### Citi Bike Daily Useage
 
 <iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:1000px; height:800px"></iframe>
 
