@@ -1,0 +1,10 @@
+name: "Citi Bike Usage in NYC"
+navbar:
+  title: "Citi Bike Usage in NYC"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Daily Usage"
+      href: index1.html
+    - text: "Expanding"
+      href: index2.html
