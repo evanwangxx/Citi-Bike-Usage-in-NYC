@@ -6,7 +6,7 @@ navbar:
       href: index.html
     - text: "Daily Usage"
       href: index1.html
-    - text: "Expanding"
+    - text: "Expansion"
       href: index2.html
     - text: "Subway"
       href: index4.html 

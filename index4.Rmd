@@ -45,8 +45,10 @@ leaflet(after) %>% addTiles('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{
   addLayersControl(baseGroups = "map", 
                    overlayGroups =  c("Q1", "Q2", "Q3", "Q4", "subway"),
     options = layersControlOptions(collapsed = F)) %>%
-  addMiniMap() %>% addEasyButton(easyButton(icon="fa-globe", title="Zoom to Entire US Map", 
-                                            onClick=JS("function(btn, map){ map.setZoom(10); }"))) %>%
+  addEasyButton(easyButton(icon="fa-globe", title="Zoom to Entire US Map", 
+                           onClick=JS("function(btn, map){ map.setZoom(10); }"))) %>%
+  addLegend("bottomright", pal = colorNumeric("RdYlGn", Q4$start.count), 
+            values = Q4$start.count, title = "Bike Usage", opacity = 0.5) %>%
   addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me",
                            onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
 ```
