@@ -2,6 +2,241 @@
 title: "Citi Bike Usage in NYC"
 output: html_document
 ---
+```{r, include = FALSE, echo = FALSE, warning = FALSE}
+## Map Style
+library(RJSONIO)
+library(tidyverse)
+
+style<-'[
+  {
+"elementType": "geometry",
+"stylers": [
+{
+  "color": "#212121"
+}
+]
+},
+{
+  "elementType": "labels",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+},
+  {
+  "elementType": "labels.icon",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+  },
+  {
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "elementType": "labels.text.stroke",
+  "stylers": [
+  {
+  "color": "#212121"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.country",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#9e9e9e"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.land_parcel",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.locality",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#bdbdbd"
+  }
+  ]
+  },
+  {
+  "featureType": "administrative.neighborhood",
+  "stylers": [
+  {
+  "visibility": "off"
+  }
+  ]
+  },
+  {
+  "featureType": "poi",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "featureType": "poi.park",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#181818"
+  }
+  ]
+  },
+  {
+  "featureType": "poi.park",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#616161"
+  }
+  ]
+  },
+  {
+  "featureType": "poi.park",
+  "elementType": "labels.text.stroke",
+  "stylers": [
+  {
+  "color": "#1b1b1b"
+  }
+  ]
+  },
+  {
+  "featureType": "road",
+  "elementType": "geometry.fill",
+  "stylers": [
+  {
+  "color": "#2c2c2c"
+  }
+  ]
+  },
+  {
+  "featureType": "road",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#8a8a8a"
+  }
+  ]
+  },
+  {
+  "featureType": "road.arterial",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#373737"
+  }
+  ]
+  },
+  {
+  "featureType": "road.highway",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#3c3c3c"
+  }
+  ]
+  },
+  {
+  "featureType": "road.highway.controlled_access",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#4e4e4e"
+  }
+  ]
+  },
+  {
+  "featureType": "road.local",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#616161"
+  }
+  ]
+  },
+  {
+  "featureType": "transit",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#757575"
+  }
+  ]
+  },
+  {
+  "featureType": "water",
+  "elementType": "geometry",
+  "stylers": [
+  {
+  "color": "#000000"
+  }
+  ]
+  },
+  {
+  "featureType": "water",
+  "elementType": "labels.text.fill",
+  "stylers": [
+  {
+  "color": "#3d3d3d"
+  }
+  ]
+  }
+  ]'
+style_list<- fromJSON(style, asText = TRUE)
+
+create_style_string<- function(style_list){
+  style_string <- ""
+  for(i in 1:length(style_list)){
+    if("featureType" %in% names(style_list[[i]])){
+      style_string <- paste0(style_string, "feature:", 
+                             style_list[[i]]$featureType, "|")      
+    }
+    elements <- style_list[[i]]$stylers
+    style_string<-paste0(style_string,"element:",style_list[[i]]$elementType,"|")
+    a <- lapply(elements, function(x)paste0(names(x), ":", x)) %>%
+      unlist() %>%
+      paste0(collapse="|")
+    style_string <- paste0(style_string, a)
+    if(i < length(style_list)){
+      style_string <- paste0(style_string, "&style=")       
+    }
+  }  
+  # google wants 0xff0000 not #ff0000
+  style_string <- gsub("#", "0x", style_string)
+  return(style_string)
+}
+
+style_string<- create_style_string(style_list)
+
+```
+
 ### Seasonal Analysis
 ```{r, echo = FALSE, warning = FALSE}
 ## Membership Data
@@ -65,12 +300,31 @@ Data_All <- rbind(Data2014, Data2015, Data2016)
 #Data_All$Miles_to_date <- as.numeric(Data_All$Miles_to_date)
 Data_All$Total_Annual_Members_Sold[627] <- mean(Data_All$Total_Annual_Members_Sold[-627])
 
+temp <- c(28.6,31.6,37.7,52.3,64.0,72.5,76.1,74.5,69.7,59.6,45.3,40.5,
+  29.9,23.9,38.1 ,54.3,68.5,71.2,78.8,79.0,74.5,58.0,52.8,50.8,
+  34.5,37.7,48.9,53.3,62.8,72.3,78.7,79.2,71.8,58.8,49.8,38.3)
+
+
+Date <- c(NA)
+for (i in 1:12){
+  Date[i] <- paste("2014", i, sep = "/")
+  Date[i + 12] <- paste("2015", i, sep = "/")
+  Date[i + 24] <- paste("2014", i, sep = "/")
+}
+
+temp_data <- data.frame(Date = Date, Temperature = temp)
+
 library(ggplot2)
 library(ggthemes)
 
 ggplot(data = Data_All) + 
-  geom_line(mapping = aes(x = Date, y = Past24_trip), 
+  geom_point(mapping = aes(x = Date, y = Past24_trip), 
+            color = "red", alpha = 0.5, size = 0.5) +
+  geom_path(mapping = aes(x = Date, y = Past24_trip),
             color = "red", alpha = 0.5) +
+  #geom_line(data = temp_data,
+  #          mapping = aes(x = Date, y = Temperature), 
+  #          color = "blue") +
   ggtitle("Citi Bike Miles Per Day") +
   ylab("") + xlab("") +
   scale_y_continuous(name = "Miles") +
@@ -95,11 +349,37 @@ ggplot(data = Data_All) +
         #panel.grid.major = element_line(color = "gray50", size = 0.5),
         panel.grid.major.x = element_blank(),
         plot.margin = margin(t = 0, r = 0, b = 40, l = 5, unit = "pt"),
-        plot.title = element_text(face = "bold", color = "black", size = 18)
-  )
+        plot.title = element_text(face = "bold", color = "black", size = 18))
 ```
 
 Clearly, there are fewer Citi Bike rides during the cold winter months. 
+
+
+
+```{r, echo = FALSE, warning = FALSE}
+library(ggmap)
+nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptype = "roadmap")
+B <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/Frequent_B.csv", header = TRUE, sep = " ")
+
+ggmap(nyc_map) + 
+  geom_segment(data = B[B$freq > 600, ], 
+             mapping = aes(x = s_long, y = s_lat,
+                           xend = e_long, yend = e_lat),
+             color = "red") +
+  annotate("text", x=-73.95, y=40.795, label= "central park", size = 5, color = "white") + 
+  annotate("text", x=-73.94, y=40.75, label= "times square", size = 5, color = "white") + 
+  annotate("text", x=-74.04, y=40.73, label= "Riverside", size = 5, color = "white") + 
+  annotate("text", x=-73.99, y=40.69, label= "Manhattan to Brooklyn", size = 5, color = "white")+ 
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) 
+  
+  
+
+```
 
 ### Trips Distribution Over The 4 Quarters and Weekday
 
