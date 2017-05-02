@@ -355,6 +355,38 @@ ggplot(data = Data_All) +
 
 Clearly, there are fewer Citi Bike rides during the cold winter months. 
 
+```{r, echo = FALSE, warning = FALSE}
+library(ggplot2)
+library(ggthemes)
+usertype <- read.csv("/Users/Hongbo/Desktop/Citi-Bike-Usage-in-NYC/data/usertype.csv", header = TRUE, sep = ",")[, 2:4]
+colnames(usertype) <- c("date", "subscriber", "customer")
+usertype$date <- as.Date(usertype$date, "%Y/%m/%d")
+
+ggplot(usertype) +
+  geom_area(mapping = aes(x = date, y = subscriber, fill = "subscriber"), alpha = 0.5) +
+  geom_area(mapping = aes(x = date, y = customer, fill = "customer"), alpha = 1) + 
+  scale_fill_manual(aesthetics = c("subscriber", "customer"),
+                     labels = c("subscriber", "customer"),
+                     values = c("red", "blue"),
+                    scale_name = "") + 
+  theme_tufte(base_size = 15) + 
+  theme(text = element_text(color = "gray20"),
+        legend.position = c("top"), # position the legend in the upper left 
+        legend.direction = "horizontal",
+        legend.justification = 0.05, # anchor point for legend.position.
+        legend.text = element_text(size = 11, color = "gray10"),
+        legend.key.height=unit(1,"line"),
+        legend.key.width=unit(3,"line"),
+        axis.text.y  = element_text(face = "italic"),
+        axis.title.x = element_text(vjust = -1), # move title away from axis
+        axis.title.y = element_text(vjust = 1), # move away for axis
+        axis.ticks.y = element_blank(), # element_blank() is how we remove elements
+        axis.line = element_line(color = "gray40", size = 0.5),
+        #panel.grid.major = element_line(color = "gray50", size = 0.5),
+        panel.grid.major.x = element_blank(),
+        plot.margin = margin(t = 0, r = 0, b = 40, l = 5, unit = "pt"),
+        plot.title = element_text(face = "bold", color = "black", size = 18))
+```
 
 
 ```{r, echo = FALSE, warning = FALSE, include = FALSE, message = FALSE}
@@ -380,9 +412,6 @@ ggmap(nyc_map) +
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) +
   ggtitle("Most Poplular Paths")
-  
-  
-
 ```
 
 ### Trips Distribution Over The 4 Quarters and Weekday
