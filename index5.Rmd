@@ -14,7 +14,7 @@ library(plotly)
 
 ### Word Frequency
 
-We searched Tweets via Twitter API as a sample to study the image of Citibike in social media. Due to the restriction of Twitter Search API we could only fetch tweets after two weeks ago. In total we got 461 tweets. The number shows that Citibike is not a hot topic on Twitter.
+The initiative idea of this part is to study the public opinion towards Citi Bike on the social media. We searched Tweets via Twitter API as a sample to study the image of Citibike in social media. Due to the restriction of Twitter Search API we could only fetch tweets after two weeks ago. In total we got 461 tweets. The number shows that Citibike is not a hot topic on Twitter, which is not a optimistic finding.
 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
 ggplot(td_freq, aes(term, n)) +
@@ -23,14 +23,14 @@ ggplot(td_freq, aes(term, n)) +
   coord_flip() + theme_classic()
 ```
 
-This is the top frequent words in the cleaned Tweets content, after eliminating Citibike related words like "citibike", "bike", etc. The most frequent words during last two weeks are about Citibike's one-day-free-pass campaign on the Earth Day on April 22nd. In addition, #cargreenyc tag and Brooklyn are strongly related topic. 
+This is the top frequent words in the cleaned Tweets content, after eliminating Citibike related words like "citibike", "bike", etc. The most frequent word during last two weeks is "free", and followed by words related to Citibike's one-day-pass campaign on the Earth Day on April 22nd. In addition, "#cargreenyc" tag and "Brooklyn"" are strongly related topic. 
 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
 set.seed(1234)
 wordcloud2(data = FreqMat, minSize = 5, gridSize = 5, size = 0.5)
 ```
 
-This is an interactive wordcloud of words usage in Citibike related tweets. Interesting words: mastercard, picnic, weather, celebr, healthier...
+This is an interactive wordcloud of words usage in Citibike related tweets. Some interesting words: mastercard, picnic, weather, celebr, healthier...
 
 ### Sentiment Analysis
 
@@ -38,13 +38,13 @@ This is an interactive wordcloud of words usage in Citibike related tweets. Inte
 plot_senti
 ```
 
-We used Liu's lexicon, which contains near 7000 words, for positive/negative words analysis. The interactive plot above demonstrates the result of sentiment analysis to Tweets related to Citibike. The average score in last two weeks remained slightly positive. While a lot of tweets don't have specific sentiment keywords.
+We used Liu's lexicon, which contains near 7000 words, for positive/negative words analysis. The plot above demonstrates the result of sentiment analysis to Tweets related to Citibike. The average score in last two weeks remained slightly positive. While a lot of tweets don't have specific sentiment keywords.
+
+The comparison cloud shows what negative tweets are talking about. It turns out that some of them are talking about health issues like "heart" and "cancer", which we supposed are actually positive to Citibike. But the cloud also has "risk", "work" as well as "broken", "steal" and "ruin", which need attention from Citibike management to see what happened and what should be improved. 
 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
 set.seed(4321)
 comparison.cloud(v_corpus_m, max.words = 200, title.size = 1, colors = c("orange", "blue"))
 ```
 
-The comparison cloud shows what negative tweets are talking about. It turns out that some of them are talking about health issues like "heart" and "cancer", which we supposed are actually positive to Citibike. But the cloud also has "risk", "work" as well as "broken", "steal" and "ruin", which need attention from Citibike management to see what happened/should be improved. 
-
-
+Overall speaking, due to the unexpected small number of tweets as well as the nature of Citi Bike related contents, the text analysis finds less valuable information than we expected at the first time. The next steps for more findings include combining it with geographic data as well as looking into difference data source like Yelp review of Citi Bike racks/stations (if it exists). 
