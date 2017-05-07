@@ -9,7 +9,9 @@ load("data/Spatial_corr_parks.RData")
 
 ### Citi Bike & Subway - A Preliminary Study
 
-According to the previous sections about the growth of Citi Bike in terms of usages, racks, and membership, we assume that a number of people use Citi Bike as a regular method to commute for the last few miles of journey to work places or somewhere else. Given not everyone is living in Manhatan, there is a typical scenario that a gentleman living in Queens takes subway to Manhattan midtown and then rides Citi Bike to his office 2 miles away everyday. So we looked into Citi Bike's relationship with other transportation distribution, to be more specific, the subway station density. 
+According to the previous sections about the growth of Citi Bike in terms of usages, racks, and membership, we assume that a number of people use Citi Bike as a regular method to commute for the last few miles of journey to work places or somewhere else. Now we take a look at Citi Bike as a role for commuting method in the city.
+
+Given not everyone is living in Manhatan, there is a typical scenario that a gentleman living in Queens takes subway to Manhattan midtown and then rides Citi Bike to his office 2 miles away everyday. So we looked into Citi Bike's relationship with other transportation distribution, to be more specific, the subway station density. 
 
 From the leaflet map we can see that according to the seasonal data, the highest usage of Citi Bike is always around Mid/Downtown across 2016, where also has a cluster of subway stations, regardless of Citi Bike's expansion in the second half of the year. 
 
