@@ -1,12 +1,45 @@
 ---
-title: "Data"
+title: "Project Book"
 output: html_document
 ---
+### Overview and Motivation
 
-Abstract
-We're going to conduct a case study on the citibike dataset. We'll be looking at NYC traffic data and try to predict/visualize how different factors affect daily bike requirements. Looking at population data, local attractions data to predict where new stations could be opened or how has citibike used this data to expand. In this project, using Twitter data, we’ll try to visualize how sentiments affect prices. We’ll look at which stations serve which neighbourhoods. We’ll look at the citibike customer base to find patterns within the demographics that citibike serves.
+[Citi Bike](http://www.citibikenyc.com) is the nation’s largest bike share program, with 10,000 bikes and 600 stations across Manhattan, Brooklyn, Queens and Jersey City. It was designed for quick trips with convenience in mind, and it’s a fun and affordable way to get around town. 
 
-Data
+In this project, we’re going to conduct a case study about Citi Bike usage. We’ll be looking at the open source Citi Bike dataset as well as NYC traffic and transportation data and Twitter data, and try to visualize the growth of Citi Bike in terms of usage, expansion and membership, the daily using pattern, different factors affect bike usage, and the image of Citi Bike on the social media. 
+
+### Related Work
+
+There have already been several visualizations and studies about Citi Bike on the Internet, since the data is open source encouraging everyone to use for study. Here are some previous works about Citi Bike on the Internet: 
+
++ [Citi Bike Stations](https://member.citibikenyc.com/map/)
+
++ [A Tale of Twenty-Two Million Citi Bike Rides: Analyzing the NYC Bike Share System](http://toddwschneider.com/posts/a-tale-of-twenty-two-million-citi-bikes-analyzing-the-nyc-bike-share-system/) by Todd W. Schneider.
+
++ [INTERACTIVE: A MONTH OF CITI BIKE](http://www.newyorker.com/news/news-desk/interactive-a-month-of-citi-bike) by [Michael Guerriero](http://www.newyorker.com/contributors/michael-guerriero) 
+
++ [Interactive map: bike movements in New York City and Washington, D.C.](http://radar.oreilly.com/2013/07/interactive-maps-bike-share-new-york-washington-citibike.html) by [Jon Bruner](http://radar.oreilly.com/jbruner)
+
++ [Where Did All the Bikes Go? An Analysis on NYC Citi Bike Station Capacity](https://blog.nycdatascience.com/student-works/bikes-go-analysis-nyc-citi-bike-station-capacity/) by [Jhonasttan Regalado](https://blog.nycdatascience.com/author/jhonasttan/)
+
+However most of the existed studies focus on the Citi Bike usage data itself and are on a daily basis, some of them also have efforts on the user profile. While what our study try to do, based on the existing ones, is studying Citi Bike in a historical growth perspective, combining other related dataset to look at Citi Bike as one of the elements in NYC environment, and looking into social media to study the social image of Citi Bike. 
+
+### Questions
+
+The questions we want to address in this study are:
+
++ What is the pattern (miles, time, routine, etc.) of Citi Bike usage in the daily, quarterly and yearly perspective? 
+
++ What is the history of Citi Bike since its establishment? How is the growth of numbers of users and members? How did it expand over the city?
+
++ What is the role of Citi Bike in NYC daily life? What is the relationship between Citi Bike and other transportation?
+
++ What is the image of Citi Bike on the social media? What are the related topics? Is it positive or negative? Why?
+
++ Is riding Citi Bike safe in NYC?
+
+### Data
+
 We plan to apply the Citi Bike System Data, which is an open source database provided by [Citi Group](http://www.citigroup.com/citi/), containing Citi Bike trip histories, ridership and membership data and other additional relevant resources. 
 
 The trip histories data include following variables: 
@@ -41,7 +74,7 @@ All the datasets of Citibike can be downloaded in csv files in a clean form. The
 
 The questions we want to ask of the data are just what we want to analyze mentioned in the abstract, since the data are all simply structured and contain most of the variables we need. 
 
->Here are the linkages of the data: 
+Here are the linkages of the data: 
 
 + [Citi Bike Trip History](https://s3.amazonaws.com/tripdata/index.html)
 
@@ -50,7 +83,101 @@ The questions we want to ask of the data are just what we want to analyze mentio
 + [Citi Bike Monthly Operating Report](https://www.citibikenyc.com/system-data/operating-reports)
 
 + [The City of New York's bicycling data](http://www.nyc.gov/html/dot/html/about/datafeeds.shtml#Bikes)
->
+
++ [New York Open Data](https://opendata.cityofnewyork.us)
+
+### Exploratory Data Analysis: 
+
+##### How did you start exploring your data? What did you find out? How did that help you structure the next steps?
+
+Citi Bike has a good organized data set, which is available on internet. The data set contains several features, which includes spectral data (longitude and latitude) and time sequence. Also, The data also include monthly membership data and daily usage data. By these features, these question can be explored: 
+
++ Time series analysis for the seasonal usage and total number of membership 
+
++ Daily usage analysis
+
++ The growth of Citi Bike and the bike station locations
+
+As a sharing public service company, what people comment for citi bike and how they think about it are important. R has a powerful tweeter API which can connect with tweet server and download corpus data, which allows us to do a text analysis, like sentiment Analysis.
+
+Last, We found bike collisions data from [NYC Open Data](https://opendata.cityofnewyork.us), that allows us to do a correlation analysis between Citi Bike usage and NYC bike collision.
+
+##### Design Evolution: 
+
+Our initiative idea about the project is to build a general descriptive visualization to the Citi Bike dataset, including EDAs for all the variables mentioned in the Data section of this project book as well as any interesting relationship between any two of them. However we found out (credit to Prof. TB) that there have been already a bunch of articles about basic and some fancy visualization applications on the Internet. Hence, we decide to look at the dataset in a different perspective.
+
+We then determined address our project on:
+
++ the daily usage of Citi Bike, which is not a new topic but a fundamental one to grab general comprehension of the dataset
+
++ the historical development of Citi Bike in terms of popularity and geographic expansion, which has not been covered much but is an interesting topic
+
++ the image of Citi Bike on social media, where we apply text analysis to study the related public posts and reviews online
+
++ the relationship with other elements in NYC, like transportation, traffic, or recreational sites, etc.
+
+Due to the limitation of time, we cannot realize everything popping up from our mind so finally we narrowed down in some of the sections. In social media section we only look at tweets on Twitter as a sample of social media content. And for the last section, we choose to study Citi Bike usage’s relationship with subway and traffic collision data to study the role of Citi Bike as a commuting method and the safety/potential danger of Citi Bike riding.
+
+##### Implementation: Give some ideas about the intent and functionality of the interactive visualizations you used in the final output.
 
 
+* First, we wanted to draw static maps or plots about the bicycle collisions so the packages here used are ggplot2 and tmap. Since there are so many accidents occuring during 2013 and 2016, it is difficult to show the trends of all of them in a line plot or histogram. So the basic thing here is to draw a map with all the collision points on it. That it how the first two ggmaps came from. Then we have tried to split the density map into each year from 2013 to 2016. Unfortunately, the trend is not so obvious. We also included 2017 density later and there seemed to have a distinct feature but it made no sense because our citi bike data is from 2013 to 2016. Here is the density map of 2013 to 2016:
+
+![](plots/Plot1.jpeg)
+
+
+* For the tmap part, our initial idea is to group the collision points by each neighbourhood and draw like a box plot, with the medium and extreme values. However, as we said, there are still too many information even though this project used neighbourhood to reduce the points. The big difficulty here is that there is only zip code of each collision point in the dataset rather than the fips code that this project commonly use. So it took me a lot of time to find the useful map data. Finally, this project chose to use the over() function in R to connect the neighbourhood map used in our class and the collision point data. And the result is what you can see in the second tmap. 
+
+### Interactive Map about the Number of Persons injured/killed
+
+* Because we wanted to reflect the information that how many persons injured/killed at each collision point, this map could not be ploted as a density map like the above collision one. Here, this project used the interactive map to do this job. At first, we did not use the black background like it currently shows and distinguish each year's points by four colors. But it is a little hard to tell the trend. So later this project adjusted the background map, the color and the opacity.
+
+### ShinyApp Map
+
+* ShinyApp is the last part of our study so in this project, we only had several days to capture the knowledge. At first, we did not intend to draw such a plot that each click on the map would activate the correponding line plots of the number of collisions and persons injured/killed. The first app we built is based on the neighbourhood names in the check box. Once the user chooses the neighourhood, bottom appears the two line plots. However, the old problem occured again, that is, there are so many neighbourhoods so only the plots may not be able to show the geographic relationship. Here are part of the codes of my first app:
+
+```{r, warning=FALSE}
+server <- function(input, output) {
+  output$nameOutput <- renderUI({
+    selectInput("nameInput", "Neighbourhood: ", sort(unique(shiny3$NTAName)),
+                selected = "Allerton")
+    })  
+  
+  filtered <- reactive({
+    if (is.null(input$nameInput)) {
+      return(NULL)
+    }
+    
+    shiny3 %>% filter( NTAName == input$nameInput )
+    })
+  
+  output$lineplot1 <- renderPlot({
+    if (is.null(filtered())) {
+      return()
+      }
+    ggplot(filtered(), aes(x=year, y=Frequency)) + geom_line(color="red")
+    })
+  
+  output$lineplot2 <- renderPlot({
+    if (is.null(filtered())) {
+      return()
+      }
+    ggplot(filtered(), aes(x=year, y=injured_killed)) + geom_line(color="blue")
+    })
+  }
+```
+
+
+##### Evaluation: What did you learn about the data by using your visualizations? How did you answer your questions?
+
+As for the relationship between Citi Bike and subway part, we found a strong correlation between the Citi Bike usage and subway station density, however due to the lack of controlling variables as well as time series analysis, the strong spatial relationship is what we conclude, and we cannot assert that there is any causal effect between the two factors. 
+
+As for the Citi Bike on social media, we get fully knowledge about the Twitter text data we got as it is rather small and not 100% ideal for sentiment analysis. We managed to give the answer for the questions we asked in this part, nevertheless it is not perfect and further study may be needed to polish the answer.
+
+Next Steps: 
+How well does your visualization work, and how could you further improve it? Which things could you not do because of limitations of data, technical difficulties, time constraints etc.
+
+For the relationship between Citi Bike and subway part, it is more like a preliminary study because we only checked the correlation, but did not reveal the causal effect between the variables. Since midtown and downtown are the busiest place in NYC, the correlation may be due to some kind of other spuriousness. The next step of this study is to control more variables and consider the potential overlap of peak time of both the Citi Bike and subway.
+
+For the Citi Bike on social media part, due to the restriction of Twitter Search API, our tweets sample size is comparatively small, we may look for larger and more sufficient data set for further study. The next steps for more findings include combining it with geographic data as well as looking into difference data source like Yelp review of Citi Bike racks/stations (if it exists).	
 

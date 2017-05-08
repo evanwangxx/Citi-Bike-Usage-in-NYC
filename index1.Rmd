@@ -239,6 +239,9 @@ style_string<- create_style_string(style_list)
 ```
 
 ### Seasonal Analysis
+
+The usage of bicycle will be affected by weather, temperature and season. The first part we will explore the relationship between season and Citi Bike.
+
 ```{r, echo = FALSE, warning = FALSE}
 ## Membership Data
 #rm(list = ls())
@@ -251,11 +254,10 @@ names <- c("Date",
            "Miles_to_date",
            "Total_Annual_Members_Sold")
 
-Y2013Q4 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/membership/2013Q4.csv")
 for (i in year){
   for(j in quan){
     dataname <- paste(i, j, sep = "")
-    data_location <- paste("/Users/Hongbo/Desktop/DataVizProject/membership/", 
+    data_location <- paste("/Users/Hongbo/Desktop/Citi-Bike-Usage-in-NYC/data/membership/", 
                            dataname, 
                            ".csv", sep = "")
     temp_data_frame <- read.csv(data_location, stringsAsFactors = FALSE)[, c(1:6)]
@@ -353,7 +355,7 @@ ggplot(data = Data_All) +
         plot.title = element_text(face = "bold", color = "black", size = 18))
 ```
 
-Clearly, there are fewer Citi Bike rides during the cold winter months. 
+Clearly, there are less Citi Bike rides during November to March, which are winter months in New York City. By that we can conclude cold weather will decrese the usage of Citi Bike.
 
 ```{r, echo = FALSE, warning = FALSE}
 library(ggplot2)
@@ -390,6 +392,10 @@ ggplot(usertype) +
         plot.title = element_text(face = "bold", color = "black", size = 18))
 ```
 
+We can see from this picture that most of Citi Bike user subscribed the annual membership.
+
+Also, the number of membership will also be affected by season(mainly temperature). Since people are not willing to use bikes during winter months, the total number of membership decreases seems reasonable. 
+
 
 ```{r, echo = FALSE, warning = FALSE, include = FALSE, message = FALSE}
 library(ggmap)
@@ -397,14 +403,17 @@ nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptyp
 B <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/Frequent_B.csv", header = TRUE, sep = " ")
 ```
 
+
+Here are several most popular paths for Citi Bike users:
+
 ```{r, echo = FALSE, warning = FALSE}
 ggmap(nyc_map) + 
   geom_segment(data = B[B$freq > 600, ], 
              mapping = aes(x = s_long, y = s_lat,
                            xend = e_long, yend = e_lat),
              color = "red") +
-  annotate("text", x=-73.95, y=40.795, label= "central park", size = 5, color = "white") + 
-  annotate("text", x=-73.94, y=40.75, label= "times square", size = 5, color = "white") + 
+  annotate("text", x=-73.95, y=40.795, label= "Central Park", size = 5, color = "white") + 
+  annotate("text", x=-73.94, y=40.75, label= "Times Square", size = 5, color = "white") + 
   annotate("text", x=-74.04, y=40.73, label= "Riverside", size = 5, color = "white") + 
   annotate("text", x=-73.99, y=40.69, label= "Manhattan to Brooklyn", size = 5, color = "white")+ 
   theme(axis.title.x=element_blank(),
@@ -416,13 +425,15 @@ ggmap(nyc_map) +
   ggtitle("Most Poplular Paths")
 ```
 
+We can see most frequent paths are located around _Central Park_, _Times Square_, _Riverside_, and _Connection between Manhattan and Brooklyn_ area. 
+
 ##### Trips Distribution Over The 4 Quarters and Weekday
 
-<iframe src = "https://nd2506.shinyapps.io/shiny1/" style = "border:none; width:1000px; height:800px"></iframe>
+<iframe src = "https://zeus348.shinyapps.io/shiny1/" style = "border:none; width:1000px; height:800px"></iframe>
 
 
 
-##### Citi Bike Daily Useage
+##### Citi Bike Daily Usage
 
-<iframe src = "https://nd2506.shinyapps.io/shiny2/" style = "border:none; width:1000px; height:800px"></iframe>
+<iframe src = "https://zeus348.shinyapps.io/shiny2/" style = "border:none; width:1000px; height:800px"></iframe>
 

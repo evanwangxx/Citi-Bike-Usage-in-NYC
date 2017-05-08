@@ -6,6 +6,7 @@ output: html_document
 A bike share of some sort in New York City was first proposed in the New York City Department of Transportation's strategic plan for 2008. A bike share was studied in detail in a 2009 report and was deemed feasible, with an initial rollout planned for 2011. After a series of delays due to Hurricane Sandy and various technological malfunctions, the system opened to the public in May 2013 with 332 stations and officially with 6,000 bikes. In 2014, Alta Bicycle Share and the City of New York announced an agreement to expand and improve the Citi Bike program. Jay Walder, former chairman and chief executive of the Metropolitan Transportation Authority, was named new chief executive of Bikeshare Holdings, which acquired Alta Bicycle Share. Citi Bike expanded to Jersey City, New Jersey, in September 2015, originally with 35 stations and 350 bikes, with an additional 15 stations and 150 bikes added the following year. As of March 31, 2016, the total number of annual subscribers is 163,865. Citi Bike riders took an average of 38,491 rides per day in 2016. Citi Bike has 10,000 bikes from 603 stations, though by the end of 2017, it plans to increase its bike fleet to 12,000 and add 375 docking. stations.[wikipedia](https://en.wikipedia.org/wiki/Citi_Bike)
 
 
+Here is a picture shows the total number of stations and total number of memberships of Citi Bike:
 
 ```{r, echo = FALSE, warning = FALSE}
 ## Membership Data
@@ -19,7 +20,6 @@ names <- c("Date",
            "Miles_to_date",
            "Total_Annual_Members_Sold")
 
-Y2013Q4 <- read.csv("/Users/Hongbo/Desktop/DataVizProject/membership/2013Q4.csv")
 for (i in year){
   for(j in quan){
     dataname <- paste(i, j, sep = "")
@@ -69,6 +69,9 @@ Data_All <- rbind(Data2014, Data2015, Data2016)
 #Data_All$Miles_to_date <- as.numeric(Data_All$Miles_to_date)
 Data_All$Total_Annual_Members_Sold[627] <- mean(Data_All$Total_Annual_Members_Sold[-627])
 ```
+
+We can see Citi bike growth rapidly in July 2015, and as the increasing in the number of stations, membership also increases rapidly about 12 times than 3 years ago.
+
 
 ##### Expanding
 ```{r, echo = FALSE, warning= FALSE, include = FALSE}
@@ -170,11 +173,7 @@ datatable(membership)
 ```
 
 
-
-As we expected, the amount of total number of membership increases as the total number of Citi bike station increases.
-
-
 ##### Citi Bike expanding from July 2013 to December 2016
 
-<iframe src = "https://nd2506.shinyapps.io/shiny3/" style = "border:none; width:1000px; height:800px"></iframe>
+<iframe src = "https://zeus348.shinyapps.io/shiny3/" style = "border:none; width:1000px; height:800px"></iframe>
 
