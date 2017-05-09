@@ -23,7 +23,7 @@ names <- c("Date",
 for (i in year){
   for(j in quan){
     dataname <- paste(i, j, sep = "")
-    data_location <- paste("/Users/Hongbo/Desktop/DataVizProject/membership/", 
+    data_location <- paste("data/membership/", 
                            dataname, 
                            ".csv", sep = "")
     temp_data_frame <- read.csv(data_location, stringsAsFactors = FALSE)[, c(1:6)]
@@ -76,7 +76,7 @@ We can see Citi bike growth rapidly in July 2015, and as the increasing in the n
 ##### Expanding
 ```{r, echo = FALSE, warning= FALSE, include = FALSE}
 library(plotly)
-expanding_num <- read.csv("/Users/Hongbo/Desktop/Data-Viz-Project/data/expanding_num.csv", header = TRUE, sep = " ")
+expanding_num <- read.csv("data/expanding_num.csv", header = TRUE, sep = " ")
 
 Date_for <- c(NA)
 for (i in 1:nrow(Data_All)){

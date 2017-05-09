@@ -170,6 +170,9 @@ server <- function(input, output) {
 
 ##### Evaluation: What did you learn about the data by using your visualizations? How did you answer your questions?
 
+We found several interesting pattersn in the daily usage part of the visualization. We were able to confirm our hypothesis qualitatively that most of the customers were tourist while the subscribers were people who went to work. 
+
+
 As for the relationship between Citi Bike and subway part, we found a strong correlation between the Citi Bike usage and subway station density, however due to the lack of controlling variables as well as time series analysis, the strong spatial relationship is what we conclude, and we cannot assert that there is any causal effect between the two factors. 
 
 As for the Citi Bike on social media, we get fully knowledge about the Twitter text data we got as it is rather small and not 100% ideal for sentiment analysis. We managed to give the answer for the questions we asked in this part, nevertheless it is not perfect and further study may be needed to polish the answer.
@@ -180,4 +183,409 @@ How well does your visualization work, and how could you further improve it? Whi
 For the relationship between Citi Bike and subway part, it is more like a preliminary study because we only checked the correlation, but did not reveal the causal effect between the variables. Since midtown and downtown are the busiest place in NYC, the correlation may be due to some kind of other spuriousness. The next step of this study is to control more variables and consider the potential overlap of peak time of both the Citi Bike and subway.
 
 For the Citi Bike on social media part, due to the restriction of Twitter Search API, our tweets sample size is comparatively small, we may look for larger and more sufficient data set for further study. The next steps for more findings include combining it with geographic data as well as looking into difference data source like Yelp review of Citi Bike racks/stations (if it exists).	
+
+
+### Code Book
+
+```{r, warning=FALSE,echo =TRUE,eval = F}
+
+# Reading and loading Data Frame
+
+l = list.files("./data/")
+for (i in c("2014","2015","2016")){
+  for (j in c("01","02","03","04","05","06","07","08","09","10","11","12")){
+
+    file = gsub("year",i,"./data/yearmonth-citibike-tripdata.csv")
+
+    file = gsub("month",j,file)
+
+    print(file)
+
+    trips<-read.table(file,header = TRUE,sep = ",")
+    names(trips) <- tolower(names(trips))
+    date = paste(i,j,"01",sep="/")
+
+    stations_start <- trips %>%
+      group_by(start.station.name) %>%
+      select(station = start.station.name,stationid = start.station.id,longitude = start.station.longitude,latitude = start.station.latitude) %>%
+      distinct(station, .keep_all=TRUE)
+
+    stations_end <- trips %>%
+      group_by(end.station.name) %>%
+      select(station = end.station.name,longitude = end.station.longitude,latitude = end.station.latitude,stationid = end.station.id) %>%
+      distinct(station,.keep_all =TRUE)
+
+    stationsi <- full_join(stations_start,stations_end,by= c("stationid","station","longitude","latitude"))
+    # print(nrow(stationsi))
+
+    stationsi <- anti_join(stationsi,stations,by = c("stationid","station","longitude","latitude")) %>%
+      mutate(ym = base::as.Date(date,format = "%Y/%m/%d"))
+    # print(nrow(stationsi))
+    stations <- full_join(stations,stationsi)
+  }
+}
+
+
+
+aslibrary(lubridate)
+l = list.files("./data")
+to_trips_final <- structure(list(Usertype = factor(),
+                              toneighbourhood = character(),
+                              stopweekday = factor(),
+                              stophour = numeric(),
+                              trips = numeric()),class = "data.frame")
+to_trips_final <- structure(list(Usertype = factor(),
+                                 fromoneighbourhood = character(),
+                                 startweekday = factor(),
+                                 starthour = numeric(),
+                                 trips = numeric()),class = "data.frame")
+for (i in l[31]){
+  trips<-read.table(paste("./data/",l[],sep=""),header = TRUE,sep = ",")
+  to_from_trips<- trips %>% select(starttime = Start.Time,
+                              fromstation = Start.Station.Name,
+                              fromlong = Start.Station.Longitude,
+                              fromlat = Start.Station.Latitude,
+                              stoptime = Stop.Time,
+                              tostation = End.Station.Name,
+                              tolat = End.Station.Latitude,
+                              tolong = End.Station.Longitude,
+                              Usertype= User.Type)
+  pointsto <- to_from_trips[,c(8,7)]
+  pointsfrom <- to_from_trips[,c(3,4)]
+  pointsto   <- SpatialPoints(pointsto,proj4string=CRS(proj4string(neighborhoods)))
+  pointsfrom   <- SpatialPoints(pointsfrom,proj4string=CRS(proj4string(neighborhoods)))
+  to_from_trips$tostation <- trips$End.Station.Name
+  to_from_trips$toneighborhood <- over(pointsto,neighborhoods)$NTAName
+  to_from_trips$fromneighborhood <- over(pointsfrom,neighborhoods)$NTAName
+  to_from_trips <- select(to_from_trips,-tolat,-tolong,-fromlat,-fromlong)
+  to_from_trips <- to_from_trips %>% mutate(stoptime = ymd_hms(stoptime))
+ips <- to_from_trips %>% mutate(stophour = format(stoptime,"%H"),stopweekday = weekdays(stoptime))
+  to_from_trips <- to_from_trips %>% mutate(starttime = ymd_hms(stoptime))
+  to_from_trips <- to_from_trips %>% mutate(starthour = format(starttime,"%H"),startweekday = weekdays(stoptime))
+  to_from_trips <- select(to_from_trips,-starttime,-stoptime,-hour,-fromstation,-tostation)
+  to_trips <- to_from_trips %>% 
+    group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+    summarise(trips = n())
+  from_trips <- to_from_trips %>% 
+    group_by(Usertype,fromoneighborhood,startweekday,starthour) %>% 
+    summarise(trips = n())
+}
+
+
+trips<- read.table("./data/201612-citibike-tripdata.csv",header = TRUE,sep = ",")
+stations_to_from_trips<- trips %>% select(starttime = Start.Time,
+                                 fromstation = Start.Station.Name,
+                                 fromlong = Start.Station.Longitude,
+                                 fromlat = Start.Station.Latitude,
+                                 stoptime = Stop.Time,
+                                 tostation = End.Station.Name,
+                                 tolat = End.Station.Latitude,
+                                 tolong = End.Station.Longitude,
+                                 Usertype= User.Type)
+stations_to_trips <- stations_to_from_trips %>% 
+  select(stoptime,tostation,tolat,tolong,Usertype) %>% 
+  mutate(stoptime = ymd_hms(stoptime),weekday = weekdays(stoptime)) %>% 
+  mutate(hour = format(stoptime,"%H:%M")) %>% 
+  group_by(tostation,hour,tolat,tolong,weekday,Usertype) %>% 
+  summarise(trips = n()) %>% ungroup()
+
+stations_to_trips$hour <- strptime(stations_to_trips$hour,format = "%H:%M")
+
+library(xts)
+
+to_trips$stophour<- as.POSIXct(strptime(to_trips$stophour,format = "%H"))
+from_trips$starthour<- as.POSIXct(strptime(from_trips$starthour,format = "%H"))
+
+test <- to_trips %>% filter(Usertype=="Subscriber"&toneighborhood=="Hudson Yards-Chelsea-Flatiron-Union Square"&stopweekday=="Monday") %>% ungroup() %>% select(trips,stophour)
+tssub<- xts(test$trips,order.by=test$stophour)
+test2 <- to_trips %>% filter(Usertype=="Customer"&toneighborhood=="Hudson Yards-Chelsea-Flatiron-Union Square"&stopweekday=="Monday") %>% ungroup() %>% select(trips,stophour)
+tscust<-xts(test2$trips,order.by = test2$stophour)
+ts <-cbind(tscust,tssub)
+
+library(chron)
+stations_to_trips <- stations_to_trips %>% mutate(hour = chron(hour,format = c(times="h:m")))
+dygraph(filter(to_trips,toneighborhood=="Brooklyn Heights-Cobble Hill"&stopweekday=="Sunday"))
+testdata <- filter(stations_to_trips,hour == "08")
+# plot_ly(z = matrix(a$z)) %>% add_surface()
+
+library(dygraphs)
+dygraph(ts)
+a <-with(MASS::kde2d())
+
+
+
+from_trips_quarter1 <- structure(list(Usertype = factor(),
+                                         fromneighbourhood = character(),
+                                         startweekday = factor(),
+                                         starthour = character(),
+                                         trips = numeric()),class = "data.frame")
+
+to_trips_quarter1 <- structure(list(Usertype = factor(),
+                                      toneighbourhood = character(),
+                                      stopweekday = factor(),
+                                      stophour = character(),
+                                      trips = numeric()),class = "data.frame")
+
+
+for (year in c("2016")){
+  for (month in c("01","02","03")){
+    tripsq1<-read.table(paste("./data/",paste(year,month,sep=""),"-citibike-tripdata.csv",sep=""),header = TRUE,sep = ",")
+    print(1)
+    to_from_trips_q1<- tripsq1 %>% select(starttime = starttime,
+                                     fromstation = start.station.name,
+                                     fromlong = start.station.longitude,
+                                     fromlat = start.station.latitude,
+                                     stoptime = stoptime,
+                                     tostation = end.station.name,
+                                     tolat = end.station.latitude,
+                                     tolong = end.station.longitude,
+                                     Usertype= usertype)
+    pointsto_q1 <- to_from_trips_q1[,c(8,7)]
+    pointsfrom_q1 <- to_from_trips_q1[,c(3,4)]
+    pointsto_q1   <- SpatialPoints(pointsto_q1,proj4string=CRS(proj4string(neighborhoods)))
+    pointsfrom_q1   <- SpatialPoints(pointsfrom_q1,proj4string=CRS(proj4string(neighborhoods)))
+    print(2)
+    to_from_trips_q1$tostation <- tripsq1$End.Station.Name
+    to_from_trips_q1$toneighborhood <- over(pointsto_q1,neighborhoods)$NTAName
+    to_from_trips_q1$fromneighborhood <- over(pointsfrom_q1,neighborhoods)$NTAName
+    to_from_trips_q1 <- select(to_from_trips_q1,-tolat,-tolong,-fromlat,-fromlong)
+    to_from_trips_q1 <- to_from_trips_q1 %>% mutate(starthour = floor_date(mdy_hms(starttime),"1 hour"),startweekday = weekdays(starthour),stophour = floor_date(mdy_hms(stoptime),"1 hour"),stopweekday = weekdays(stophour))
+    to_from_trips_q1 <- select(to_from_trips_q1,-starttime,-stoptime,-fromstation)
+    print(3)
+    to_trips_q1 <- to_from_trips_q1 %>% 
+      group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_q1 <- to_from_trips_q1 %>% 
+      group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_quarter1 <- rbind(from_trips_quarter1,from_trips_q1) %>% group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+    to_trips_quarter1 <- rbind(to_trips_quarter1,to_trips_q1) %>% group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+  }
+}
+to_trips_quarter1<- to_trips_quarter1 %>% mutate(hour = format(stophour,"%H")) %>% group_by(Usertype,toneighborhood,stopweekday,hour) %>% summarise(trips = sum(trips)) 
+to_trips_quarter1$trips <- as.integer(to_trips_quarter1$trips/16)
+from_trips_quarter1<- from_trips_quarter1 %>% mutate(hour = format(starthour,"%H")) %>% group_by(Usertype,fromneighborhood,startweekday,hour) %>% summarise(trips = sum(trips))
+from_trips_quarter1$trips <- as.integer(from_trips_quarter1$trips/16)
+
+
+from_trips_quarter2 <- structure(list(Usertype = factor(),
+                                      fromneighbourhood = character(),
+                                      startweekday = factor(),
+                                      starthour = character(),
+                                      trips = numeric()),class = "data.frame")
+
+to_trips_quarter2 <- structure(list(Usertype = factor(),
+                                    toneighbourhood = character(),
+                                    stopweekday = factor(),
+                                    stophour = character(),
+                                    trips = numeric()),class = "data.frame")
+
+
+for (year in c("2016")){
+  for (month in c("04","05","06")){
+    tripsq2<-read.table(paste("./data/",paste(year,month,sep=""),"-citibike-tripdata.csv",sep=""),header = TRUE,sep = ",")
+    print(1)
+    to_from_trips_q2<- tripsq2 %>% select(starttime = starttime,
+                                          fromstation = start.station.name,
+                                          fromlong = start.station.longitude,
+                                          fromlat = start.station.latitude,
+                                          stoptime = stoptime,
+                                          tostation = end.station.name,
+                                          tolat = end.station.latitude,
+                                          tolong = end.station.longitude,
+                                          Usertype= usertype)
+    pointsto_q2 <- to_from_trips_q2[,c(8,7)]
+    pointsfrom_q2 <- to_from_trips_q2[,c(3,4)]
+    pointsto_q2   <- SpatialPoints(pointsto_q2,proj4string=CRS(proj4string(neighborhoods)))
+    pointsfrom_q2   <- SpatialPoints(pointsfrom_q2,proj4string=CRS(proj4string(neighborhoods)))
+    print(2)
+    to_from_trips_q2$tostation <- tripsq2$End.Station.Name
+    to_from_trips_q2$toneighborhood <- over(pointsto_q2,neighborhoods)$NTAName
+    to_from_trips_q2$fromneighborhood <- over(pointsfrom_q2,neighborhoods)$NTAName
+    to_from_trips_q2 <- select(to_from_trips_q2,-tolat,-tolong,-fromlat,-fromlong)
+    to_from_trips_q2 <- to_from_trips_q2 %>% mutate(starthour = floor_date(mdy_hms(starttime),"1 hour"),startweekday = weekdays(starthour),stophour = floor_date(mdy_hms(stoptime),"1 hour"),stopweekday = weekdays(stophour))
+    to_from_trips_q2 <- select(to_from_trips_q2,-starttime,-stoptime,-fromstation)
+    print(3)
+    to_trips_q2 <- to_from_trips_q2 %>% 
+      group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_q2 <- to_from_trips_q2 %>% 
+      group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_quarter2 <- rbind(from_trips_quarter2,from_trips_q2) %>% group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+    to_trips_quarter2 <- rbind(to_trips_quarter2,to_trips_q2) %>% group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+  }
+}
+to_trips_quarter2<- to_trips_quarter2 %>% mutate(hour = format(stophour,"%H")) %>% group_by(Usertype,toneighborhood,stopweekday,hour) %>% summarise(trips = sum(trips)) 
+to_trips_quarter2$trips <- as.integer(to_trips_quarter2$trips/16)
+from_trips_quarter2<- from_trips_quarter2 %>% mutate(hour = format(starthour,"%H")) %>% group_by(Usertype,fromneighborhood,startweekday,hour) %>% summarise(trips = sum(trips))
+from_trips_quarter2$trips <- as.integer(from_trips_quarter2$trips/16)
+
+from_trips_quarter3 <- structure(list(Usertype = factor(),
+                                      fromneighbourhood = character(),
+                                      startweekday = factor(),
+                                      starthour = character(),
+                                      trips = numeric()),class = "data.frame")
+
+to_trips_quarter3 <- structure(list(Usertype = factor(),
+                                    toneighbourhood = character(),
+                                    stopweekday = factor(),
+                                    stophour = character(),
+                                    trips = numeric()),class = "data.frame")
+
+
+for (year in c("2016")){
+  for (month in c("07","08","09")){
+    tripsq3<-read.table(paste("./data/",paste(year,month,sep=""),"-citibike-tripdata.csv",sep=""),header = TRUE,sep = ",")
+    print(1)
+    to_from_trips_q3<- tripsq3 %>% select(starttime = starttime,
+                                          fromstation = start.station.name,
+                                          fromlong = start.station.longitude,
+                                          fromlat = start.station.latitude,
+                                          stoptime = stoptime,
+                                          tostation = end.station.name,
+                                          tolat = end.station.latitude,
+                                          tolong = end.station.longitude,
+                                          Usertype= usertype)
+    pointsto_q3 <- to_from_trips_q3[,c(8,7)]
+    pointsfrom_q3 <- to_from_trips_q3[,c(3,4)]
+    pointsto_q3   <- SpatialPoints(pointsto_q3,proj4string=CRS(proj4string(neighborhoods)))
+    pointsfrom_q3   <- SpatialPoints(pointsfrom_q3,proj4string=CRS(proj4string(neighborhoods)))
+    print(2)
+    to_from_trips_q3$tostation <- tripsq3$End.Station.Name
+    to_from_trips_q3$toneighborhood <- over(pointsto_q3,neighborhoods)$NTAName
+    to_from_trips_q3$fromneighborhood <- over(pointsfrom_q3,neighborhoods)$NTAName
+    to_from_trips_q3 <- select(to_from_trips_q3,-tolat,-tolong,-fromlat,-fromlong)
+    to_from_trips_q3 <- to_from_trips_q3 %>% mutate(starthour = floor_date(mdy_hms(starttime),"1 hour"),startweekday = weekdays(starthour),stophour = floor_date(mdy_hms(stoptime),"1 hour"),stopweekday = weekdays(stophour))
+    to_from_trips_q3 <- select(to_from_trips_q3,-starttime,-stoptime,-fromstation)
+    print(3)
+    to_trips_q3 <- to_from_trips_q3 %>% 
+      group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_q3 <- to_from_trips_q3 %>% 
+      group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_quarter3 <- rbind(from_trips_quarter3,from_trips_q3) %>% group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+    to_trips_quarter3 <- rbind(to_trips_quarter3,to_trips_q3) %>% group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+  }
+}
+to_trips_quarter3<- to_trips_quarter3 %>% mutate(hour = format(stophour,"%H")) %>% group_by(Usertype,toneighborhood,stopweekday,hour) %>% summarise(trips = sum(trips)) 
+to_trips_quarter3$trips <- as.integer(to_trips_quarter3$trips/16)
+from_trips_quarter3<- from_trips_quarter3 %>% mutate(hour = format(starthour,"%H")) %>% group_by(Usertype,fromneighborhood,startweekday,hour) %>% summarise(trips = sum(trips))
+from_trips_quarter3$trips <- as.integer(from_trips_quarter3$trips/16)
+
+
+
+from_trips_quarter4 <- structure(list(Usertype = factor(),
+                                      fromneighbourhood = character(),
+                                      startweekday = factor(),
+                                      starthour = character(),
+                                      trips = numeric()),class = "data.frame")
+
+to_trips_quarter4 <- structure(list(Usertype = factor(),
+                                    toneighbourhood = character(),
+                                    stopweekday = factor(),
+                                    stophour = character(),
+                                    trips = numeric()),class = "data.frame")
+
+
+for (year in c("2016")){
+  for (month in c("10","11","12")){
+    tripsq4<-read.table(paste("./data/",paste(year,month,sep=""),"-citibike-tripdata.csv",sep=""),header = TRUE,sep = ",")
+    print(1)
+    to_from_trips_q4<- tripsq4 %>% select(starttime = Start.Time,
+                                          fromstation = Start.Station.Name,
+                                          fromlong = Start.Station.Longitude,
+                                          fromlat = Start.Station.Latitude,
+                                          stoptime = Stop.Time,
+                                          tostation = End.Station.Name,
+                                          tolat = End.Station.Latitude,
+                                          tolong = End.Station.Longitude,
+                                          Usertype= User.Type)
+    pointsto_q4 <- to_from_trips_q4[,c(8,7)]
+    pointsfrom_q4 <- to_from_trips_q4[,c(3,4)]
+    pointsto_q4   <- SpatialPoints(pointsto_q4,proj4string=CRS(proj4string(neighborhoods)))
+    pointsfrom_q4   <- SpatialPoints(pointsfrom_q4,proj4string=CRS(proj4string(neighborhoods)))
+    print(2)
+    to_from_trips_q4$tostation <- tripsq4$End.Station.Name
+    to_from_trips_q4$toneighborhood <- over(pointsto_q4,neighborhoods)$NTAName
+    to_from_trips_q4$fromneighborhood <- over(pointsfrom_q4,neighborhoods)$NTAName
+    to_from_trips_q4 <- select(to_from_trips_q4,-tolat,-tolong,-fromlat,-fromlong)
+    to_from_trips_q4 <- to_from_trips_q4 %>% mutate(starthour = floor_date(ymd_hms(starttime),"1 hour"),startweekday = weekdays(starthour),stophour = floor_date(ymd_hms(stoptime),"1 hour"),stopweekday = weekdays(stophour))
+    to_from_trips_q4 <- select(to_from_trips_q4,-starttime,-stoptime,-fromstation)
+    print(3)
+    to_trips_q4 <- to_from_trips_q4 %>% 
+      group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_q4 <- to_from_trips_q4 %>% 
+      group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = n()) %>% ungroup()
+    from_trips_quarter4 <- rbind(from_trips_quarter4,from_trips_q4) %>% group_by(Usertype,fromneighborhood,startweekday,starthour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+    to_trips_quarter4 <- rbind(to_trips_quarter4,to_trips_q4) %>% group_by(Usertype,toneighborhood,stopweekday,stophour) %>% 
+      summarise(trips = sum(trips)) %>% ungroup()
+  }
+}
+to_trips_quarter4<- to_trips_quarter4 %>% mutate(hour = format(stophour,"%H")) %>% group_by(Usertype,toneighborhood,stopweekday,hour) %>% summarise(trips = sum(trips)) 
+to_trips_quarter4$trips <- as.integer(to_trips_quarter4$trips/12)
+from_trips_quarter4<- from_trips_quarter4 %>% mutate(hour = format(starthour,"%H")) %>% group_by(Usertype,fromneighborhood,startweekday,hour) %>% summarise(trips = sum(trips))
+from_trips_quarter4$trips <- as.integer(from_trips_quarter4$trips/12)
+
+from_trips_quarter1<- from_trips_quarter1 %>% mutate(quarter=1,trips = as.integer(trips/12*16))
+from_trips_quarter2<- from_trips_quarter2 %>% mutate(quarter=2,trips = as.integer(trips/12*16))
+from_trips_quarter3<- from_trips_quarter3 %>% mutate(quarter=3,trips = as.integer(trips/12*16))
+
+
+
+setwd("D:/Data-Viz-Project/")
+library(devtools)
+devtools::install_github("rstudio/leaflet")
+
+stations = structure(list(station = factor(),
+                          stationid = numeric(),
+                          longitude = numeric(), 
+                          latitude =  numeric(),
+                          ym = as.Date(character())),class = "data.frame")
+
+
+
+stations <- stations %>% mutate(dateID = as.numeric(as.factor(ym)))
+library(leaflet)
+
+
+
+
+library(htmlwidgets)
+
+library(rgdal)
+Neighborhoods<- readOGR("nynta_17a","nynta",GDAL1_integer64_policy = TRUE)
+Parks <- readOGR(dsn="geo_export_5b72ae44-17f2-45c1-ab1e-89557a3ec30b",layer = "geo_export_5b72ae44-17f2-45c1-ab1e-89557a3ec30b",GDAL1_integer64_policy = TRUE)
+library(sp)
+leaf1<-leaflet(stations) %>% 
+  addTiles("http://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png") %>%
+  setView(lng = -73.972151, lat = 40.736512, zoom = 12) %>% addPolygons(data = neighborhoods,color = "white",weight = 1,fillColor="Black",fillOpacity = 0,highlightOptions=highlightOptions(weight = 4)) %>% 
+  addCircles(radius =30,color = "orange",fillColor = "orange",fillOpacity = 1) 
+
+library(rgeos)
+library(sp)
+points <- stations[,3:4]
+
+points   <- SpatialPoints(points,proj4string=CRS(proj4string(Neighborhood)))
+stations$neighborhood <- over(points,Neighborhood)$NTACode
+
+neighborhoods@data<- neighborhoods@data %>% mutate(rownum = row_number())
+centers <- coordinates(neighborhoods)
+nnames <- neighborhoods@data$NTAName
+
+stations_to_trips$hour <- as.POSIXct(strptime(stations_to_trips$hour,format = "%H:%M"))
+stations_to_trips_nousertype <- stations_to_trips %>% ungroup() %>% mutate(hour = floor_date(hour,"30 minutes")) %>% group_by(tolat,tolong,weekday,tostation,hour) %>% summarise(trips = sum(trips))
+
+
+```
 

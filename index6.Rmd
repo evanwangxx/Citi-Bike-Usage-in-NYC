@@ -3,8 +3,11 @@ title: "Collisions"
 output: html_document
 ---
 
+In this part we looked at the correlation of collisions/ accidents involving bicyclists and the citibike usage. We found that the area around midtown manhattan had the largest number of bicyle accidents which correlated well with the usage of citibikes in that area. Although this is not a causal effect there is no denying a correlation b/w the two.
 
-<iframe src = "https://xixi95.shinyapps.io/collisions2" style = "border:none; width:1000px; height:800px"></iframe>
 
+<iframe src = "https://xixi95.shinyapps.io/collisions2" style = "border:none; width:1000px; height:1000px"></iframe>
 
-<iframe src = "https://zeus348.shinyapps.io/new_folder_3/" style = "border:none; width:1000px; height:800px"></iframe>
+From the two plots on collision data based on neighborhood. There seems to be a seasonal component of the time series data for some neighborhoods which looks intuitive based on the daily usage part of the project. Clicking on the neighborhoods brings up the details of the collisions for that neighborhood.
+
+<iframe src = "https://zeus348.shinyapps.io/new_folder_3/" style = "border:none; width:1000px; height:1000px"></iframe>

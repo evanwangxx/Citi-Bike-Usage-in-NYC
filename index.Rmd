@@ -16,7 +16,7 @@ navbar:
       href: index3.html      
 ---
 
-![Caption for the picture.](plots/Citibike.jpg)
+![](plots/Citibike.jpg)
 
 
 ```{r, include = FALSE, echo = FALSE, warning = FALSE}
@@ -263,23 +263,23 @@ nyc_map <- get_googlemap("east vallage", zoom = 12, style = style_string, maptyp
 ```
 
 ```{r, echo = FALSE, warning = FALSE}
-ggmap(nyc_map) + 
-  geom_segment(data = B, 
-               mapping = aes(x = s_long, y = s_lat,
-                           xend = e_long, yend = e_lat,
-                           alpha = freq), 
-               color = "gold") +
-  geom_point(data = citi_stations_201608, mapping = aes(x = long, y = lat),
-             color = "red", size = 0.05, alpha = 0.4) + 
-  scale_alpha_continuous( range = c(0.008, 0.01) ) + 
-  guides(alpha = FALSE) + 
-  theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-  
+# ggmap(nyc_map) + 
+#   geom_segment(data = B, 
+#                mapping = aes(x = s_long, y = s_lat,
+#                            xend = e_long, yend = e_lat,
+#                            alpha = freq), 
+#                color = "gold") +
+#   geom_point(data = citi_stations_201608, mapping = aes(x = long, y = lat),
+#              color = "red", size = 0.05, alpha = 0.4) + 
+#   scale_alpha_continuous( range = c(0.008, 0.01) ) + 
+#   guides(alpha = FALSE) + 
+#   theme(axis.title.x=element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank())
+#   
 
 ## rmarkdown::render_site()
 ```
